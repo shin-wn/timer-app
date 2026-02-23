@@ -184,7 +184,7 @@ function App() {
 
   return (
     <div
-      className={`min-h-screen bg-slate-100 flex items-center justify-center p-4 lg:p-8 2xl:p-12 ${isAlarmRinging ? 'cursor-pointer' : ''}`}
+      className={`min-h-screen flex items-center justify-center p-4 lg:p-8 2xl:p-12 transition-colors duration-700 ${isAlarmRinging ? 'bg-red-100 cursor-pointer' : 'bg-slate-100'}`}
       onClick={() => { if (isAlarmRinging) stopAlarm() }}
     >
       <div className="w-full max-w-sm lg:max-w-2xl xl:max-w-4xl 2xl:max-w-6xl">
@@ -391,13 +391,21 @@ function App() {
         {isFinished && (
           <div className="mt-3 2xl:mt-4 bg-red-50 border border-red-200 rounded-xl px-6 py-3 2xl:py-4 text-center">
             <p className="text-red-500 font-semibold text-sm 2xl:text-base tracking-wide">時間になりました</p>
-            {isAlarmRinging && (
-              <p className="text-red-400 text-xs 2xl:text-sm mt-1 tracking-wide">画面をクリックしてアラームを停止</p>
-            )}
           </div>
         )}
 
       </div>
+
+      {/* Alarm stop banner */}
+      {isAlarmRinging && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+          <div className="bg-red-500 text-white px-8 py-4 rounded-full font-semibold tracking-wide shadow-lg shadow-red-300 animate-pulse
+                          text-sm 2xl:text-lg">
+            画面上のどこかをクリックしてアラームを停止
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
