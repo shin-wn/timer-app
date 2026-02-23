@@ -132,6 +132,13 @@ function App() {
     }
   }, [isFinished]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!isAlarmRinging) return
+    const handler = () => stopAlarm()
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [isAlarmRinging, stopAlarm])
+
   const handleStart = () => {
     if (isFinished) return
     if (timeLeft === null) {
@@ -396,12 +403,20 @@ function App() {
 
       </div>
 
-      {/* Alarm stop banner */}
+      {/* Alarm stop overlay */}
       {isAlarmRinging && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
-          <div className="bg-red-500 text-white px-8 py-4 rounded-full font-semibold tracking-wide shadow-lg shadow-red-300 animate-pulse
-                          text-sm 2xl:text-lg">
-            画面上のどこかをクリックしてアラームを停止
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <div className="animate-pulse text-center
+                          bg-red-500 text-white
+                          px-14 py-10 2xl:px-20 2xl:py-14
+                          rounded-3xl 2xl:rounded-[2rem]
+                          shadow-2xl shadow-red-400/60">
+            <p className="text-2xl 2xl:text-5xl font-bold tracking-wide mb-2 2xl:mb-4">
+              アラーム鳴動中
+            </p>
+            <p className="text-base 2xl:text-2xl font-medium opacity-90">
+              画面上のどこかをクリックして停止
+            </p>
           </div>
         </div>
       )}
