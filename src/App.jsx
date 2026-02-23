@@ -1,18 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 const TIME_PRESETS = [
-  { label: '3h', seconds: 3 * 3600 },
-  { label: '2h', seconds: 2 * 3600 },
-  { label: '1h', seconds: 3600 },
-  { label: '30m', seconds: 30 * 60 },
-  { label: '15m', seconds: 15 * 60 },
-  { label: '10m', seconds: 10 * 60 },
-  { label: '5m', seconds: 5 * 60 },
-  { label: '3m', seconds: 3 * 60 },
-  { label: '1m', seconds: 60 },
-  { label: '30s', seconds: 30 },
-  { label: '10s', seconds: 10 },
+  { label: '3h',  seconds: 3 * 3600, type: 'h' },
+  { label: '2h',  seconds: 2 * 3600, type: 'h' },
+  { label: '1h',  seconds: 3600,     type: 'h' },
+  { label: '30m', seconds: 30 * 60,  type: 'm' },
+  { label: '15m', seconds: 15 * 60,  type: 'm' },
+  { label: '10m', seconds: 10 * 60,  type: 'm' },
+  { label: '5m',  seconds: 5 * 60,   type: 'm' },
+  { label: '3m',  seconds: 3 * 60,   type: 'm' },
+  { label: '1m',  seconds: 60,       type: 'm' },
+  { label: '30s', seconds: 30,       type: 's' },
+  { label: '10s', seconds: 10,       type: 's' },
+  { label: '1s',  seconds: 1,        type: 's' },
 ]
+
+const PRESET_STYLES = {
+  h: 'text-violet-700 bg-violet-100 hover:bg-violet-200',
+  m: 'text-blue-700   bg-blue-100   hover:bg-blue-200',
+  s: 'text-slate-600  bg-slate-100  hover:bg-slate-200',
+}
 
 const SOUNDS = [
   { id: 'beep',  label: 'ビープ',   repeatAfter: 1500 },
@@ -251,16 +258,15 @@ function App() {
                 時間を追加
               </p>
               <div className="flex flex-wrap gap-2 2xl:gap-2.5">
-                {TIME_PRESETS.map(({ label, seconds }) => (
+                {TIME_PRESETS.map(({ label, seconds, type }) => (
                   <button
                     key={label}
                     onClick={() => handleAddPreset(seconds)}
                     disabled={isRunning}
-                    className="px-3.5 py-2 text-sm font-medium rounded-lg transition-colors
-                               text-slate-600 bg-slate-100
-                               hover:bg-blue-50 hover:text-blue-600
+                    className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors
                                disabled:opacity-40 disabled:cursor-not-allowed
-                               2xl:px-5 2xl:py-2.5 2xl:text-base 2xl:rounded-xl"
+                               2xl:px-5 2xl:py-2.5 2xl:text-base 2xl:rounded-xl
+                               ${PRESET_STYLES[type]}`}
                   >
                     +{label}
                   </button>
