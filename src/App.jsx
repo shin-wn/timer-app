@@ -16,9 +16,9 @@ const TIME_PRESETS = [
 ]
 
 const PRESET_STYLES = {
-  h: 'text-violet-700 bg-violet-100 hover:bg-violet-200',
-  m: 'text-blue-700   bg-blue-100   hover:bg-blue-200',
-  s: 'text-slate-600  bg-slate-100  hover:bg-slate-200',
+  h: 'text-emerald-700 bg-emerald-100 hover:bg-emerald-200',
+  m: 'text-blue-700    bg-blue-100    hover:bg-blue-200',
+  s: 'text-violet-700  bg-violet-100  hover:bg-violet-200',
 }
 
 const SOUNDS = [
@@ -77,11 +77,9 @@ function App() {
   const alarmLoopRef = useRef(null)
 
   const totalInputSeconds = inputMinutes * 60 + inputSeconds
-
   const displayTime = timeLeft !== null ? timeLeft : totalInputSeconds
   const displayMinutes = Math.floor(displayTime / 60)
   const displaySeconds = displayTime % 60
-
   const progressPercent =
     timeLeft !== null && totalInputSeconds > 0
       ? ((totalInputSeconds - timeLeft) / totalInputSeconds) * 100
@@ -104,7 +102,6 @@ function App() {
 
   useEffect(() => {
     if (!isRunning) return
-
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -116,7 +113,6 @@ function App() {
         return prev - 1
       })
     }, 1000)
-
     return clearTimer
   }, [isRunning, clearTimer])
 
@@ -161,18 +157,6 @@ function App() {
     setTimeLeft(null)
   }
 
-  const handleMinutesChange = (e) => {
-    const val = Math.max(0, Math.min(99, Number(e.target.value)))
-    setInputMinutes(val)
-    handleReset()
-  }
-
-  const handleSecondsChange = (e) => {
-    const val = Math.max(0, Math.min(59, Number(e.target.value)))
-    setInputSeconds(val)
-    handleReset()
-  }
-
   const handleAddPreset = (seconds) => {
     const total = Math.min(inputMinutes * 60 + inputSeconds + seconds, 99 * 60 + 59)
     setInputMinutes(Math.floor(total / 60))
@@ -191,215 +175,135 @@ function App() {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center p-4 lg:p-8 2xl:p-12 transition-colors duration-700 ${isAlarmRinging ? 'bg-red-100 cursor-pointer' : 'bg-slate-100'}`}
+      className={`h-screen overflow-hidden flex flex-col items-center justify-center transition-colors duration-700 select-none
+                  gap-4 lg:gap-6 2xl:gap-8
+                  px-5 py-5
+                  ${isAlarmRinging ? 'bg-red-100 cursor-pointer' : 'bg-slate-50'}`}
       onClick={() => { if (isAlarmRinging) stopAlarm() }}
     >
-      <div className="w-full max-w-sm lg:max-w-2xl xl:max-w-4xl 2xl:max-w-6xl">
+      {/* Header */}
+      <h1 className="text-slate-400 text-xs font-semibold tracking-[0.3em] uppercase">Timer</h1>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm lg:flex lg:divide-x lg:divide-slate-200">
-
-          {/* ── Left panel: ring ── */}
-          <div className="flex flex-col items-center justify-center px-8 pt-8 pb-6
-                          lg:flex-1 lg:py-14 lg:px-12
-                          xl:py-16 xl:px-16
-                          2xl:py-20 2xl:px-20">
-            <h1 className="text-slate-400 text-xs font-semibold tracking-[0.25em] uppercase
-                           mb-8 lg:mb-10 2xl:mb-12 2xl:text-sm">
-              Timer
-            </h1>
-
-            {/* Ring */}
-            <div className="relative
-                            w-52 h-52
-                            lg:w-72 lg:h-72
-                            xl:w-80 xl:h-80
-                            2xl:w-[26rem] 2xl:h-[26rem]">
-              <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-                <circle
-                  cx="60" cy="60" r={ringR}
-                  fill="none"
-                  stroke="#e2e8f0"
-                  strokeWidth="5"
-                />
-                <circle
-                  cx="60" cy="60" r={ringR}
-                  fill="none"
-                  stroke={isFinished ? '#ef4444' : '#3b82f6'}
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  strokeDasharray={ringCirc}
-                  strokeDashoffset={ringCirc * (1 - progressPercent / 100)}
-                  className="transition-all duration-1000"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                {isFinished ? (
-                  <span className="text-red-500 font-semibold tracking-[0.15em] uppercase
-                                   text-sm lg:text-base 2xl:text-xl">
-                    時間切れ
-                  </span>
-                ) : (
-                  <span className="text-slate-800 font-mono font-light tabular-nums
-                                   text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl">
-                    {String(displayMinutes).padStart(2, '0')}
-                    <span className="text-slate-300">:</span>
-                    {String(displaySeconds).padStart(2, '0')}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Right panel: controls ── */}
-          <div className="flex flex-col justify-center
-                          px-6 pb-8 gap-6
-                          lg:flex-1 lg:p-10 lg:gap-7
-                          xl:p-12 xl:gap-8
-                          2xl:p-14 2xl:gap-9">
-
-            {/* Preset buttons */}
-            <div>
-              <p className="text-slate-400 text-xs tracking-[0.2em] uppercase
-                             mb-2.5 2xl:mb-3 2xl:text-sm">
-                時間を追加
-              </p>
-              <div className="flex flex-wrap gap-2 2xl:gap-2.5">
-                {TIME_PRESETS.map(({ label, seconds, type }) => (
-                  <button
-                    key={label}
-                    onClick={() => handleAddPreset(seconds)}
-                    disabled={isRunning}
-                    className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors
-                               disabled:opacity-40 disabled:cursor-not-allowed
-                               2xl:px-5 2xl:py-2.5 2xl:text-base 2xl:rounded-xl
-                               ${PRESET_STYLES[type]}`}
-                  >
-                    +{label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Input controls */}
-            <div>
-              <p className="text-slate-400 text-xs tracking-[0.2em] uppercase
-                             mb-2.5 2xl:mb-3 2xl:text-sm">
-                時間を設定
-              </p>
-              <div className="flex items-center gap-4 2xl:gap-6">
-                <div className="flex flex-col items-center gap-1.5">
-                  <label className="text-slate-400 text-xs tracking-widest uppercase 2xl:text-sm">分</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="99"
-                    value={inputMinutes}
-                    onChange={handleMinutesChange}
-                    disabled={isRunning}
-                    className="text-center text-slate-800 font-mono
-                               w-20 text-2xl lg:w-24 lg:text-3xl 2xl:w-32 2xl:text-4xl
-                               bg-slate-50 border border-slate-200 rounded-xl py-2 px-1
-                               focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100
-                               disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  />
-                </div>
-                <span className="text-slate-300 font-light mt-5 text-3xl 2xl:text-4xl">:</span>
-                <div className="flex flex-col items-center gap-1.5">
-                  <label className="text-slate-400 text-xs tracking-widest uppercase 2xl:text-sm">秒</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={inputSeconds}
-                    onChange={handleSecondsChange}
-                    disabled={isRunning}
-                    className="text-center text-slate-800 font-mono
-                               w-20 text-2xl lg:w-24 lg:text-3xl 2xl:w-32 2xl:text-4xl
-                               bg-slate-50 border border-slate-200 rounded-xl py-2 px-1
-                               focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100
-                               disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Sound selector */}
-            <div>
-              <p className="text-slate-400 text-xs tracking-[0.2em] uppercase
-                             mb-2.5 2xl:mb-3 2xl:text-sm">
-                アラーム音
-              </p>
-              <div className="flex gap-2 2xl:gap-3">
-                {SOUNDS.map(({ id, label }) => (
-                  <button
-                    key={id}
-                    onClick={() => { setSelectedSound(id); playSound(id) }}
-                    className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors
-                                2xl:py-2.5 2xl:text-sm 2xl:rounded-xl
-                                ${selectedSound === id
-                                  ? 'bg-blue-500 text-white border-blue-500'
-                                  : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300 hover:text-blue-500'
-                                }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex gap-3 2xl:gap-4">
-              {isRunning ? (
-                <button
-                  onClick={handleStop}
-                  className="flex-1 bg-slate-500 hover:bg-slate-600 text-white font-semibold
-                             py-3 rounded-xl transition-colors
-                             2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
-                >
-                  一時停止
-                </button>
-              ) : (
-                <button
-                  onClick={handleStart}
-                  disabled={totalInputSeconds === 0 || isFinished}
-                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold
-                             py-3 rounded-xl transition-colors shadow-sm
-                             disabled:opacity-40 disabled:cursor-not-allowed
-                             2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
-                >
-                  スタート
-                </button>
-              )}
-              <button
-                onClick={handleReset}
-                className="flex-1 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800
-                           font-semibold py-3 rounded-xl border border-slate-200 transition-colors
-                           2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
-              >
-                リセット
-              </button>
-              <button
-                onClick={handleClearTime}
-                disabled={isRunning}
-                className="flex-1 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800
-                           font-semibold font-mono py-3 rounded-xl border border-slate-200 transition-colors
-                           disabled:opacity-40 disabled:cursor-not-allowed
-                           2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
-              >
-                00:00
-              </button>
-            </div>
-
+      {/* Ring + time */}
+      <div className="relative
+                      w-44 h-44
+                      sm:w-52 sm:h-52
+                      lg:w-64 lg:h-64
+                      xl:w-80 xl:h-80
+                      2xl:w-[28rem] 2xl:h-[28rem]">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r={ringR} fill="none" stroke="#e2e8f0" strokeWidth="5" />
+            <circle
+              cx="60" cy="60" r={ringR}
+              fill="none"
+              stroke={isFinished ? '#ef4444' : '#3b82f6'}
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeDasharray={ringCirc}
+              strokeDashoffset={ringCirc * (1 - progressPercent / 100)}
+              className="transition-all duration-1000"
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            {isFinished ? (
+              <span className="text-red-500 font-semibold tracking-[0.15em] uppercase
+                               text-sm sm:text-base lg:text-lg 2xl:text-3xl">
+                時間切れ
+              </span>
+            ) : (
+              <span className="text-slate-800 font-mono font-light tabular-nums
+                               text-4xl
+                               sm:text-5xl
+                               lg:text-6xl
+                               xl:text-7xl
+                               2xl:text-8xl">
+                {String(displayMinutes).padStart(2, '0')}
+                <span className="text-slate-300">:</span>
+                {String(displaySeconds).padStart(2, '0')}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Alert */}
-        {isFinished && (
-          <div className="mt-3 2xl:mt-4 bg-red-50 border border-red-200 rounded-xl px-6 py-3 2xl:py-4 text-center">
-            <p className="text-red-500 font-semibold text-sm 2xl:text-base tracking-wide">時間になりました</p>
-          </div>
-        )}
+      {/* Controls */}
+      <div className="w-full max-w-xl xl:max-w-2xl flex flex-col gap-2.5 2xl:gap-4">
+
+        {/* Preset buttons */}
+        <div className="flex flex-wrap justify-center gap-1.5 2xl:gap-2">
+          {TIME_PRESETS.map(({ label, seconds, type }) => (
+            <button
+              key={label}
+              onClick={() => handleAddPreset(seconds)}
+              disabled={isRunning}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors
+                         disabled:opacity-40 disabled:cursor-not-allowed
+                         2xl:px-4 2xl:py-2 2xl:text-sm 2xl:rounded-xl
+                         ${PRESET_STYLES[type]}`}
+            >
+              +{label}
+            </button>
+          ))}
+        </div>
+
+        {/* Sound selector */}
+        <div className="flex gap-2 2xl:gap-3">
+          {SOUNDS.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => { setSelectedSound(id); playSound(id) }}
+              className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors
+                          2xl:py-2 2xl:text-sm 2xl:rounded-xl
+                          ${selectedSound === id
+                            ? 'bg-blue-500 text-white border-blue-500'
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300 hover:text-blue-500'
+                          }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-2.5 2xl:gap-4">
+          {isRunning ? (
+            <button
+              onClick={handleStop}
+              className="flex-1 bg-slate-500 hover:bg-slate-600 text-white font-semibold
+                         py-2.5 rounded-xl transition-colors 2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
+            >
+              一時停止
+            </button>
+          ) : (
+            <button
+              onClick={handleStart}
+              disabled={totalInputSeconds === 0 || isFinished}
+              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold
+                         py-2.5 rounded-xl transition-colors shadow-sm
+                         disabled:opacity-40 disabled:cursor-not-allowed
+                         2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
+            >
+              スタート
+            </button>
+          )}
+          <button
+            onClick={handleReset}
+            className="flex-1 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800
+                       font-semibold py-2.5 rounded-xl border border-slate-200 transition-colors
+                       2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
+          >
+            リセット
+          </button>
+          <button
+            onClick={handleClearTime}
+            disabled={isRunning}
+            className="flex-1 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800
+                       font-semibold font-mono py-2.5 rounded-xl border border-slate-200 transition-colors
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       2xl:py-4 2xl:text-lg 2xl:rounded-2xl"
+          >
+            00:00
+          </button>
+        </div>
 
       </div>
 
